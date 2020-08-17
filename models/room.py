@@ -1,19 +1,17 @@
 from pymongo import ReturnDocument
-import random
-import string
-
+from utils import generate_code 
 class Room():
     
     def __init__(self, mongo):
-        self.rooms =  mongo.local.rooms
+        self.rooms =  mongo.aimgame.rooms
 
     def create(self, sid):
         print('Create game room called:', sid)
-        code = self.generate_code(5)
+        code = generate_code(5)
         nRoom = {
-            'code':code,
-            'admin':sid,
-            'state':'WAITING_FOR_PLAYERS',
+            'code'    : code,
+            'admin'   : sid,
+            'state'   : 'WAITING_FOR_PLAYERS',
             'players' : []
         }
         self.rooms.insert_one(nRoom)
@@ -24,10 +22,10 @@ class Room():
         print('Join to game called:', sid)
         _room = self.rooms.find_one_and_update({'code':code}, {
             '$push': {
-                'players' :{
-                'sid'   : sid,
-                'name' : name,
-                'score': 0
+                'players' : {
+                    'sid'     : sid,
+                    'name'    : name,
+                    'score'   : 0
                 } 
             }
         },
@@ -43,7 +41,7 @@ class Room():
                         'sid' : sid
                     }
                 }
-            })
+            },  return_document = ReturnDocument.AFTER)
         else:
             room = self.rooms.find_one_and_update({},
             {
@@ -54,7 +52,22 @@ class Room():
                         }
                     }   
                 }
-            }, return_document=ReturnDocument.AFTER)
+            }, return_document = ReturnDocument.AFTER)
         return room
-    def generate_code(self, length):
-        return ''.join(random.choice(string.ascii_uppercase+string.digits) for _ in range(length))
+
+    def hit(self, code, sid):    
+        print('Join to game called:', sid)
+        _room = self.rooms.find_one_and_update({'code':code, 'players.sid':sid}, {
+            '$inc': {
+                'players.$.score' : 1
+            }
+        },
+        return_document=ReturnDocument.AFTER)
+        
+        listPlayers =  _room['players']
+        for player in listPlayers:
+            if player['sid'] == sid:
+                score = player['score']
+                break
+
+        return score
