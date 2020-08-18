@@ -48,7 +48,7 @@ def generate_point(room):
         
         print(f'Generated point', room, '@', point)
         socketio.emit('point', dumps(point), room=room, namespace='/game')
-        socketio.sleep(3)
+        socketio.sleep(1)
 
 
 @socketio.on('connect', namespace='/game')
@@ -60,11 +60,10 @@ def connect_game():
 def disconnected_game():
     print('User disconnected from sockets in Game page.')
     _room = rooms.leave(request.sid)
-
-    # Message to all users..
     
     if _room != None :
         if len(_room['players']) == 0 and active_rooms.count(_room['code']) == 1:
+            print('Removing inactive room.')
             active_rooms.remove(_room['code'])
 
         emit('leave', dumps({'sid':request.sid}), room=_room['code'], broadcast=True, namespace='/game', include_self=False)
