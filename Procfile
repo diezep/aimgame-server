@@ -1,1 +1,1 @@
-web: gunicorn --worker-class eventlet -w 1 -b :$PORT main:socketio
+web: gunicorn --worker-class eventlet -w 1 -b :$PORT 
