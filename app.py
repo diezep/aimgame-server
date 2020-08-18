@@ -65,8 +65,8 @@ def disconnected_game():
         if len(_room['players']) == 0 and active_rooms.count(_room['code']) == 1:
             print('Removing inactive room.')
             active_rooms.remove(_room['code'])
-
-        emit('leave', dumps({'sid':request.sid}), room=_room['code'], broadcast=True, namespace='/game', include_self=False)
+            leave_room(_room['code'])
+            emit('leave', dumps({'sid':request.sid}), room=_room['code'], broadcast=True, namespace='/game', include_self=False)
 
 
 @app.route('/create', methods=['POST'])
@@ -100,10 +100,9 @@ def on_join_game(data):
 def on_leave_game(data):
 
     room = data['code']
-    name = data['name']
 
     _room = rooms.leave(request.sid, room)
-    if len(_room['players'])==0:
+    if len(_room['players']) == 0:
         active_rooms.remove(_room['code'])
     leave_room(room)
 

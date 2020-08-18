@@ -56,18 +56,17 @@ class Room():
         return room
 
     def hit(self, code, sid):    
-        print('Join to game called:', sid)
-        _room = self.rooms.find_one_and_update({'code':code, 'players.sid':sid}, {
+        print('Hit in game called #', code)
+        _room = self.rooms.update_one({'code':code, 'players.sid':sid}, {
             '$inc': {
                 'players.$.score' : 1
             }
-        },
-        return_document=ReturnDocument.AFTER)
+        })
         
-        listPlayers =  _room['players']
-        for player in listPlayers:
-            if player['sid'] == sid:
-                score = player['score']
-                break
+        # listPlayers =  _room['players']
+        # for player in listPlayers:
+        #     if player['sid'] == sid:
+        #         score = player['score']
+        #         break
 
-        return score
+        # return score
