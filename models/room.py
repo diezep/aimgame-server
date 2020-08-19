@@ -34,6 +34,7 @@ class Room():
 
     def leave(self, sid, code=None):
         print('Leave from game called:', sid)
+        
         if code is not None:
             room = self.rooms.find_one_and_update({'code':code} , {
                 '$pull': {

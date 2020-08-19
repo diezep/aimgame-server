@@ -60,11 +60,15 @@ def connect_game():
 def disconnected_game():
     print('User disconnected from sockets in Game page.')
     _room = rooms.leave(request.sid)
-    
+    print(repr(_room))
+    print(repr(active_rooms.count(_room['code'])))
     if _room != None :
-        if len(_room['players']) == 0 and active_rooms.count(_room['code']) == 1:
+        if len(_room['players']) == 0:
             print('Removing inactive room.')
-            active_rooms.remove(_room['code'])
+            try:
+                active_rooms.remove(_room['code'])
+            except :
+                pass
             leave_room(_room['code'])
             emit('leave', dumps({'sid':request.sid}), room=_room['code'], broadcast=True, namespace='/game', include_self=False)
 
